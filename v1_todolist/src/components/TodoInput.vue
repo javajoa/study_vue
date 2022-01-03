@@ -20,7 +20,7 @@
       -->
       <!-- input binding 1: input에 입력한 값을 인스턴스 data 옵션에 생성한 객체에 바인딩하기 위해서 button태그에 v-model="저장할 객체 키 이름"-->
       <!-- input binding 2: 로직이 button 클릭뿐만 아니라 enter 키를 눌렀을 떄에도 실행될 수 있도록 v-on:keyup.enter="메서드" 처리-->
-      <input type="text" v-model="newTodoItem" v-on:keyup.enter="addTodoItem"/>
+      <input type="text" v-model="newTodoItem" v-on:keyup.enter="addToList"/>
       <!-- input bindin 2: input에 가져온 값으로 실행할 로직을 v-on:click="인스턴스 methods 옵션에 정의한, 연결할 메서드 이름(실행할 로직)"을 사용해서 연결    -->
       <button v-on:click="addToList">+</button>
   </div>
@@ -48,17 +48,33 @@ export default {
 
             개발자 도구 > Application > Storage > Local Storage에서 저장된 데이터 확인 가능
             */  
-           
+
+           if(this.newTodoItem == '') {
+               alert('write down what to do');
+           } else {
+            //데이터 키, 값 뿐만 아니라, toogleComplete 실행 상태도 boolean 값으로 같이 저장하기 위한 object
+            var obj = { completed: false, item: this.newTodoItem }
+            
+            //localStorage에 이미 저장된 데이터인지 확인 후 저장된 데이터일 경우 alert로 중복 알림 메세지, 아닐 경우 데이터 저장            
             var check = localStorage.getItem(this.newTodoItem);
-            if(check != null) {
+            if(check != null) { //중복일 경우
                 alert('the item is already added to the list')
-            } else {
-                localStorage.setItem(this.newTodoItem, this.newTodoItem);
+            } else { //중복이 아닐 경우
+                //키, 값만 저장한 경우
+                //localStorage.setItem(this.newTodoItem, this.newTodoItem);
+                
+                //키, 값, toggleComplete 실행 상태를 담은 객체를 그대로 저장한 경우 > local storage에서 object Object로 나타나 데이터 값을 확인할 수 없음
+                //localStorage.setItem(this.newTodoItem, obj);
+                
+                //키, 값, toggleComplete 실행 상태를 담은 객체를 JSON.stringify() 함수의 인자로 받아 저장한 경우
+                localStorage.setItem(this.newTodoItem, JSON.stringify(obj));
             }
 
             //저장 후에 input 입력창 초기화
             this.emptyInput();
+           }
         },
+        //addToList에서 기능 분리하여 따로 메서드 정의
         emptyInput: function() {
             this.newTodoItem = '';
         }
